@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple JavaScript Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f5f5f5;
+        }
+        
+        .calculator {
+            width: 300px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .display {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: right;
+            min-height: 80px;
+        }
+        
+        .previous {
+            font-size: 14px;
+            color: #666;
+            min-height: 20px;
+        }
+        
+        .current {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 5px;
+            word-break: break-all;
+        }
+        
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        
+        button {
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        button:hover {
+            background: #e0e0e0;
+        }
+        
+        .operator {
+            background: #e9e9e9;
+        }
+        
+        .equals {
+            background: #4a90e2;
+            color: white;
+            grid-column: span 2;
+        }
+        
+        .clear {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .delete {
+            background: #ffd166;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display">
+            <div class="previous" id="previous-operand"></div>
+            <div class="current" id="current-operand">0</div>
+        </div>
+        <div class="buttons">
+            <button class="clear" data-action="clear">C</button>
+            <button class="delete" data-action="backspace">DEL</button>
+            <button class="operator" data-action="exponent">^</button>
+            <button class="operator" data-action="divide">/</button>
+            
+            <button data-number>7</button>
+            <button data-number>8</button>
+            <button data-number>9</button>
+            <button class="operator" data-action="multiply">*</button>
+            
+            <button data-number>4</button>
+            <button data-number>5</button>
+            <button data-number>6</button>
+            <button class="operator" data-action="subtract">-</button>
+            
+            <button data-number>1</button>
+            <button data-number>2</button>
+            <button data-number>3</button>
+            <button class="operator" data-action="add">+</button>
+            
+            <button data-number>0</button>
+            <button data-number>.</button>
+            <button class="operator" data-action="modulus">%</button>
+            <button class="equals" data-action="calculate">=</button>
+        </div>
+    </div>
+
+    <script>
+        class Calculator {
+            constructor(previousOperandElement, currentOperandElement) {
+                this.previousOperandElement = previousOperandElement;
+                this.currentOperandElement = currentOperandElement;
+                this.clear();
+            }
+            
+            clear() {
+                this.currentOperand = '0';
+                this.previousOperand = '';
+                this.operation = null;
+                this.resetNextInput = false;
+            }
+            
+            delete() {
+                this.currentOperand = this.currentOperand.toString().slice(0, -1);
+                if (this.currentOperand === '') {
+                    this.currentOperand = '0';
+                }
+            }
+            
+            appendNumber(number) {
+                if (this.resetNextInput) {
+                    this.currentOperand = '0';
+                    this.resetNextInput = false;
+                }
+                
+                if (number === '.' && this.currentOperand.includes('.')) return;
+                
+                if (this.currentOperand === '0' && number !== '.') {
+                    this.currentOperand = number;
+                } else {
+                    this.currentOperand += number;
+                }
+            }
+            
+            chooseOperation(operation) {
+                if (this.currentOperand === '') return;
+                if (this.previousOperand !== '') {
+                    this.calculate();
+                }
+                this.operation = operation;
+                this.previousOperand = this.currentOperand;
+                this.currentOperand = '';
+            }
+            
+            calculate() {
+                let computation;
+                const prev = parseFloat(this.previousOperand);
+                const current = parseFloat(this.currentOperand);
+                
+                if (isNaN(prev) || isNaN(current)) return;
+                
+                // Demonstrate nested loops and break/continue
+                // This is a simple example for demonstration purposes
+                let operationCount = 0;
+                outerLoop: for (let i = 0; i < 5; i++) {
+                    for (let j = 0; j < 5; j++) {
+                        if (operationCount > 10) {
+                            break outerLoop; // Exit both loops
+                        }
+                        
+                        // Skip even numbers
+                        if (j % 2 === 0) continue;
+                        
+                        operationCount++;
+                    }
+                }
+                
+                switch (this.operation) {
+                    case 'add':
+                        computation = prev + current;
+                        break;
+                    case 'subtract':
+                        computation = prev - current;
+                        break;
+                    case 'multiply':
+                        computation = prev * current;
+                        break;
+                    case 'divide':
+                        if (current === 0) {
+                            computation = "Error: Div by 0";
+                        } else {
+                            computation = prev / current;
+                        }
+                        break;
+                    case 'modulus':
+                        if (current === 0) {
+                            computation = "Error: Div by 0";
+                        } else {
+                            computation = prev % current;
+                        }
+                        break;
+                    case 'exponent':
+                        computation = Math.pow(prev, current);
+                        break;
+                }
+                
+                this.currentOperand = computation.toString();
+                this.operation = null;
+                this.previousOperand = '';
+                this.resetNextInput = true;
+            }
+            
+            getOperationSymbol() {
+                switch (this.operation) {
+                    case 'add': return '+';
+                    case 'subtract': return '-';
+                    case 'multiply': return '*';
+                    case 'divide': return '/';
+                    case 'modulus': return '%';
+                    case 'exponent': return '^';
+                    default: return '';
+                }
+            }
+            
+            updateDisplay() {
+                this.currentOperandElement.textContent = this.currentOperand;
+                
+                if (this.operation) {
+                    this.previousOperandElement.textContent = 
+                        `${this.previousOperand} ${this.getOperationSymbol()}`;
+                } else {
+                    this.previousOperandElement.textContent = this.previousOperand;
+                }
+            }
+        }
+
+        // Initialize calculator
+        const previousOperandElement = document.getElementById('previous-operand');
+        const currentOperandElement = document.getElementById('current-operand');
+        
+        const calculator = new Calculator(previousOperandElement, currentOperandElement);
+        
+        // Button event listeners
+        document.querySelectorAll('[data-number]').forEach(button => {
+            button.addEventListener('click', () => {
+                calculator.appendNumber(button.innerText);
+                calculator.updateDisplay();
+            });
+        });
+        
+        document.querySelectorAll('[data-action]').forEach(button => {
+            button.addEventListener('click', () => {
+                const action = button.getAttribute('data-action');
+                
+                switch (action) {
+                    case 'clear':
+                        calculator.clear();
+                        break;
+                    case 'backspace':
+                        calculator.delete();
+                        break;
+                    case 'add':
+                    case 'subtract':
+                    case 'multiply':
+                    case 'divide':
+                    case 'modulus':
+                    case 'exponent':
+                        calculator.chooseOperation(action);
+                        break;
+                    case 'calculate':
+                        calculator.calculate();
+                        break;
+                }
+                
+                calculator.updateDisplay();
+            });
+        });
+        
+        // Keyboard support
+        document.addEventListener('keydown', event => {
+            if (/^[0-9]$/.test(event.key)) {
+                calculator.appendNumber(event.key);
+                calculator.updateDisplay();
+            } else if (event.key === '.') {
+                calculator.appendNumber('.');
+                calculator.updateDisplay();
+            } else if (event.key === '+') {
+                calculator.chooseOperation('add');
+                calculator.updateDisplay();
+            } else if (event.key === '-') {
+                calculator.chooseOperation('subtract');
+                calculator.updateDisplay();
+            } else if (event.key === '*') {
+                calculator.chooseOperation('multiply');
+                calculator.updateDisplay();
+            } else if (event.key === '/') {
+                calculator.chooseOperation('divide');
+                calculator.updateDisplay();
+            } else if (event.key === '%') {
+                calculator.chooseOperation('modulus');
+                calculator.updateDisplay();
+            } else if (event.key === '^') {
+                calculator.chooseOperation('exponent');
+                calculator.updateDisplay();
+            } else if (event.key === 'Enter' || event.key === '=') {
+                calculator.calculate();
+                calculator.updateDisplay();
+            } else if (event.key === 'Escape') {
+                calculator.clear();
+                calculator.updateDisplay();
+            } else if (event.key === 'Backspace') {
+                calculator.delete();
+                calculator.updateDisplay();
+            }
+        });
+    </script>
+</body>
+</html>
